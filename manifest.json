@@ -1,0 +1,31 @@
+{
+  "action": {
+    "default_icon": {
+      "128": "./assets/imgs/logo.png",
+      "16": "./assets/imgs/logo.png",
+      "32": "./assets/imgs/logo.png",
+      "48": "./assets/imgs/logo.png"
+    },
+    "default_popup": "./index.html"
+  },
+  "content_scripts": [
+    {
+      "all_frames": true,
+      "css": ["./assets/css/content.css"],
+      "js": ["./assets/js/content.js"],
+      "matches": ["<all_urls>"]
+    }
+  ],
+  "description": "记录上次阅读位置，刷新页面也能无缝衔接！",
+  "icons": {
+    "128": "./assets/imgs/logo.png",
+    "16": "./assets/imgs/logo.png",
+    "32": "./assets/imgs/logo.png",
+    "48": "./assets/imgs/logo.png"
+  },
+  "manifest_version": 3,
+  "name": "Scroll To",
+  "permissions": ["storage"],
+  "update_url": "https://clients2.google.com/service/update2/crx",
+  "version": "0.0.1"
+}
