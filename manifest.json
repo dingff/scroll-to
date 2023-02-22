@@ -16,7 +16,7 @@
       "matches": ["<all_urls>"]
     }
   ],
-  "description": "记录上次阅读位置，刷新页面也能无缝衔接！",
+  "description": "记录阅读位置，刷新页面也能无缝衔接！",
   "icons": {
     "128": "./assets/imgs/logo.png",
     "16": "./assets/imgs/logo.png",
