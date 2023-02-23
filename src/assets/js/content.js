@@ -33,11 +33,8 @@ class ContentScript {
   updateStorage(next) {
     return new Promise((resolve) => {
       chrome.storage.sync.set({ [this.SCROLL_TO_MAP]: next }).then(() => {
-        this.getStorage().then((v) => {
-          this.currMap = v
-          resolve()
-          // console.log(`${this.SCROLL_TO_MAP}`, this.currMap)
-        })
+        resolve()
+        // console.log(`${this.SCROLL_TO_MAP}`, this.currMap)
       })
     })
   }
@@ -48,15 +45,15 @@ class ContentScript {
           url: window.location.href,
           top: window.scrollY,
         }
+        this.initScrollFn()
         this.updateStorage(this.currMap).then(() => {
-          this.initScrollFn()
           sendResponse(true)
         })
       }
       if (message.type === 'delete') {
         delete this.currMap[window.location.href]
+        window.onscroll = null
         this.updateStorage(this.currMap).then(() => {
-          window.onscroll = null
           sendResponse(true)
         })
       }

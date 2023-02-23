@@ -15,6 +15,9 @@
       "matches": ["<all_urls>"]
     }
   ],
+  "background": {
+    "service_worker": "./assets/js/background.js"
+  },
   "description": "记录阅读位置，刷新页面也能无缝衔接！",
   "icons": {
     "128": "./assets/imgs/logo.png",
@@ -24,7 +27,7 @@
   },
   "manifest_version": 3,
   "name": "Scroll To",
-  "permissions": ["storage"],
+  "permissions": ["storage", "tabs"],
   "update_url": "https://clients2.google.com/service/update2/crx",
   "version": "0.0.1"
 }
