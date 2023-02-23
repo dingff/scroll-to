@@ -33,9 +33,19 @@ chrome.tabs.onActivated.addListener((e) => {
   changeIconByTabId(e.tabId)
 })
 chrome.tabs.onUpdated.addListener(debounce((tabId) => {
-  console.log('onUpdated', tabId);
   changeIconByTabId(tabId)
   chrome.tabs.sendMessage(tabId, {
     type: 'urlChange',
   })
 }))
+chrome.windows.onFocusChanged.addListener((windowId) => {
+  if (windowId !== -1) {
+    chrome.tabs.query({
+      active: true,
+      currentWindow: true
+    }, (tabs) => {
+      const tabId = tabs[0].id
+      changeIconByTabId(tabId)
+    })
+  }
+})
