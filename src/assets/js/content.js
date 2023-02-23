@@ -16,6 +16,7 @@ class ContentScript {
   initScrollFn() {
     if (this.currMap[window.location.href]) {
       window.onscroll = this.debounce(() => {
+        if (!this.currMap[window.location.href]) return
         this.currMap[window.location.href].top = window.scrollY
         this.updateStorage(this.currMap)
       })
