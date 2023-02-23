@@ -5,8 +5,10 @@ class ContentScript {
     window.onload = () => {
       this.getStorage().then((v) => {
         this.currMap = v
-        this.scrollTo(this.currMap[window.location.href]?.top || 0)
-        this.initScrollFn()
+        if (this.currMap[window.location.href]) {
+          this.scrollTo(this.currMap[window.location.href].top)
+          this.initScrollFn()
+        }
       })
     }
     this.initMessageListener()

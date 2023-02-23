@@ -1,15 +1,14 @@
 import { Switch } from 'antd'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import coolIcon from '../../assets/imgs/cool.png'
 import laughIcon from '../../assets/imgs/laugh.png'
 import styles from './index.less'
 
-declare var chrome:any
+declare var chrome: any
 
 export default function Index() {
   const SCROLL_TO_MAP = 'SCROLL_TO_MAP'
-  const [dataMap, setDataMap] = useState<any>({})
-  const [location, setLocation] = useState<any>({}) // window.location
+  const locationRef = useRef<any>(null) // window.location
   const [checked, setChecked] = useState(false)
   const callContentAdd = () => {
     return new Promise((resolve) => {
@@ -47,10 +46,9 @@ export default function Index() {
       })
     })
   }
-  const updateDataMap = () => {
+  const updateData = () => {
     getStorage().then((res: any) => {
-      setDataMap(res)
-      setChecked(!!res[location.href])
+      setChecked(!!res[locationRef.current.href])
     })
   }
   const getLocation = () => {
@@ -67,24 +65,21 @@ export default function Index() {
       })
     })
   }
-  const handleSwitchChange = (v: boolean) => {
-    console.log(v)
-    if (v) {
+  const handleSwitchChange = (open: boolean) => {
+    if (open) {
       callContentAdd().then(() => {
-        updateDataMap()
+        updateData()
       })
     } else {
       callContentDelete().then(() => {
-        updateDataMap()
+        updateData()
       })
     }
   }
   useEffect(() => {
-    updateDataMap()
-  }, [location])
-  useEffect(() => {
-    getLocation().then((res:any) => {
-      setLocation(res)
+    getLocation().then((res: any) => {
+      locationRef.current = res
+      updateData()
     })
   }, [])
   return (
@@ -98,7 +93,7 @@ export default function Index() {
       ) : (
         <div className={styles.info}>
           <img src={coolIcon}></img>
-          需要我记录阅读位置嘛？
+          需要记录阅读位置嘛？
         </div>
       )}
     </div>
