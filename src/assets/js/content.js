@@ -38,6 +38,11 @@ class ContentScript {
       })
     })
   }
+  updateLogo() {
+    chrome.runtime.sendMessage({
+      type: 'updateLogo',
+    })
+  }
   initMessageListener() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.type === 'add') {
@@ -47,6 +52,7 @@ class ContentScript {
         }
         this.initScrollFn()
         this.updateStorage(this.currMap).then(() => {
+          this.updateLogo()
           sendResponse(true)
         })
       }
@@ -54,6 +60,7 @@ class ContentScript {
         delete this.currMap[window.location.href]
         window.onscroll = null
         this.updateStorage(this.currMap).then(() => {
+          this.updateLogo()
           sendResponse(true)
         })
       }

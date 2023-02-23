@@ -22,7 +22,7 @@ const getTabUrl = (tabId) => {
     })
   })
 }
-const changeIconByTabId = (tabId) => {
+const updateLogoByTabId = (tabId) => {
   getStorage().then((dataMap) => {
     getTabUrl(tabId).then((url) => {
       chrome.action.setIcon({ path: dataMap[url] ? '../imgs/logo.png': '../imgs/logo_gray.png' })
@@ -30,22 +30,31 @@ const changeIconByTabId = (tabId) => {
   })
 }
 chrome.tabs.onActivated.addListener((e) => {
-  changeIconByTabId(e.tabId)
+  updateLogoByTabId(e.tabId)
 })
 chrome.tabs.onUpdated.addListener(debounce((tabId) => {
-  changeIconByTabId(tabId)
+  updateLogoByTabId(tabId)
   chrome.tabs.sendMessage(tabId, {
     type: 'urlChange',
   }).catch(() => {})
 }))
+const updateLogoForCurrTab = () => {
+  chrome.tabs.query({
+    active: true,
+    currentWindow: true
+  }, (tabs) => {
+    const tabId = tabs[0].id
+    updateLogoByTabId(tabId)
+  })
+}
 chrome.windows.onFocusChanged.addListener((windowId) => {
   if (windowId !== -1) {
-    chrome.tabs.query({
-      active: true,
-      currentWindow: true
-    }, (tabs) => {
-      const tabId = tabs[0].id
-      changeIconByTabId(tabId)
-    })
+    updateLogoForCurrTab()
+  }
+})
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'updateLogo') {
+    updateLogoForCurrTab()
+    sendResponse(true)
   }
 })
