@@ -42,7 +42,7 @@ export default function Index() {
   const getStorage = () => {
     return new Promise((resolve) => {
       chrome.storage.sync.get([SCROLL_TO_MAP]).then((res: any) => {
-        resolve(res[SCROLL_TO_MAP])
+        resolve(res[SCROLL_TO_MAP] || {})
       })
     })
   }

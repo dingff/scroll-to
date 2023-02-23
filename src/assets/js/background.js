@@ -11,7 +11,7 @@ const debounce = (fn, delay = 500) => {
 const getStorage = () => {
   return new Promise((resolve) => {
     chrome.storage.sync.get([SCROLL_TO_MAP]).then((res) => {
-      resolve(res[SCROLL_TO_MAP])
+      resolve(res[SCROLL_TO_MAP] || {})
     })
   })
 }
@@ -36,7 +36,7 @@ chrome.tabs.onUpdated.addListener(debounce((tabId) => {
   changeIconByTabId(tabId)
   chrome.tabs.sendMessage(tabId, {
     type: 'urlChange',
-  })
+  }).catch(() => {})
 }))
 chrome.windows.onFocusChanged.addListener((windowId) => {
   if (windowId !== -1) {
