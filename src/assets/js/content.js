@@ -60,6 +60,13 @@ class ContentScript {
       if (message.type === 'getLocation') {
         sendResponse(window.location)
       }
+      if (message.type === 'urlChange') {
+        if (this.currMap[window.location.href]) {
+          this.scrollTo(this.currMap[window.location.href].top)
+          this.initScrollFn()
+        }
+        sendResponse(true)
+      }
       return true
     })
   }

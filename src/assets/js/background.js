@@ -8,11 +8,24 @@ const debounce = (fn, delay = 500) => {
     }, delay)
   }
 }
-const changeIconByTabId = (tabId) => {
-  chrome.tabs.get(tabId, (tab) => {
+const getStorage = () => {
+  return new Promise((resolve) => {
     chrome.storage.sync.get([SCROLL_TO_MAP]).then((res) => {
-      const dataMap = res[SCROLL_TO_MAP]
-      chrome.action.setIcon({ path: dataMap[tab.url] ? '../imgs/logo.png': '../imgs/logo_gray.png' })
+      resolve(res[SCROLL_TO_MAP])
+    })
+  })
+}
+const getTabUrl = (tabId) => {
+  return new Promise((resolve) => {
+    chrome.tabs.get(tabId, (tab) => {
+      resolve(tab.url)
+    })
+  })
+}
+const changeIconByTabId = (tabId) => {
+  getStorage().then((dataMap) => {
+    getTabUrl(tabId).then((url) => {
+      chrome.action.setIcon({ path: dataMap[url] ? '../imgs/logo.png': '../imgs/logo_gray.png' })
     })
   })
 }
@@ -22,4 +35,7 @@ chrome.tabs.onActivated.addListener((e) => {
 chrome.tabs.onUpdated.addListener(debounce((tabId) => {
   console.log('onUpdated', tabId);
   changeIconByTabId(tabId)
+  chrome.tabs.sendMessage(tabId, {
+    type: 'urlChange',
+  })
 }))
