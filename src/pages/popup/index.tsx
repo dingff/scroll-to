@@ -1,12 +1,12 @@
 import { Switch } from 'antd'
 import { useEffect, useRef, useState } from 'react'
-import coolIcon from '../../assets/imgs/cool.png'
-import laughIcon from '../../assets/imgs/laugh.png'
+import coolIcon from '@/assets/imgs/popup/cool.png'
+import laughIcon from '@/assets/imgs/popup/laugh.png'
 import styles from './index.less'
 
 declare var chrome: any
 
-export default function Index() {
+export default function Popup() {
   const SCROLL_TO_MAP = 'SCROLL_TO_MAP'
   const locationRef = useRef<any>(null) // window.location
   const [checked, setChecked] = useState(false)
@@ -18,9 +18,9 @@ export default function Index() {
       }, (tabs: any) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'add',
-        }, (res: boolean) => {
+        }).then((res: boolean) => {
           resolve(res)
-        })
+        }).catch(() => {})
       })
     })
   }
@@ -32,9 +32,9 @@ export default function Index() {
       }, (tabs: any) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'delete',
-        }, (res: boolean) => {
+        }).then((res: boolean) => {
           resolve(res)
-        })
+        }).catch(() => {})
       })
     })
   }
@@ -59,9 +59,9 @@ export default function Index() {
       }, (tabs: any) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'getLocation',
-        }, (res:any) => {
+        }).then((res:any) => {
           resolve(res)
-        })
+        }).catch(() => {})
       })
     })
   }
@@ -93,7 +93,7 @@ export default function Index() {
       ) : (
         <div className={styles.info}>
           <img src={coolIcon}></img>
-          需要记录阅读位置嘛？
+          要记住阅读进度吗？
         </div>
       )}
     </div>

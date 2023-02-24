@@ -1,4 +1,4 @@
-import { defineConfig } from "umi";
+import { defineConfig } from 'umi'
 
 export default defineConfig({
   mpa: {
@@ -13,8 +13,18 @@ export default defineConfig({
       to: 'dist'
     },
     {
-      from: 'src/assets',
-      to: 'dist/assets'
+      from: 'src/assets/imgs/logo',
+      to: 'dist/logo'
     }
-  ]
-});
+  ],
+  chainWebpack(memo) {
+    memo
+    .entry('content')
+      .add('./src/assets/js/content.js')
+      .end()
+    .entry('background')
+      .add('./src/assets/js/background.js')
+      .end()
+    return memo
+  },
+})

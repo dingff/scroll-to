@@ -25,7 +25,7 @@ const getTabUrl = (tabId) => {
 const updateLogoByTabId = (tabId) => {
   getStorage().then((dataMap) => {
     getTabUrl(tabId).then((url) => {
-      chrome.action.setIcon({ path: dataMap[url] ? '../imgs/logo.png': '../imgs/logo_gray.png' })
+      chrome.action.setIcon({ path: dataMap[url] ? './logo/logo.png': './logo/logo_gray.png' })
     })
   })
 }
