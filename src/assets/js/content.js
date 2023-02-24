@@ -72,6 +72,8 @@ class ContentScript {
         if (this.currMap[window.location.href]) {
           this.scrollTo(this.currMap[window.location.href].top)
           this.initScrollFn()
+        } else {
+          window.onscroll = null
         }
         sendResponse(true)
       }
