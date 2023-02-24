@@ -20,10 +20,10 @@ export default defineConfig({
   chainWebpack(memo) {
     memo
     .entry('content')
-      .add('./src/assets/js/content.js')
+      .add('./src/scripts/content')
       .end()
     .entry('background')
-      .add('./src/assets/js/background.js')
+      .add('./src/scripts/background')
       .end()
     return memo
   },
