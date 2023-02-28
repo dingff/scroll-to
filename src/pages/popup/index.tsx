@@ -2,6 +2,7 @@ import { Switch } from 'antd'
 import { useEffect, useRef, useState } from 'react'
 import coolIcon from '@/assets/imgs/popup/cool.png'
 import laughIcon from '@/assets/imgs/popup/laugh.png'
+import errorIcon from '@/assets/imgs/popup/error.png'
 import styles from './index.less'
 
 declare var chrome: any
@@ -10,6 +11,8 @@ export default function Popup() {
   const SCROLL_TO_MAP = 'SCROLL_TO_MAP'
   const locationRef = useRef<any>(null) // window.location
   const [checked, setChecked] = useState<boolean>()
+  const [notSupport, setNotSupport] = useState<boolean>(false)
+
   const callContentAdd = () => {
     return new Promise((resolve) => {
       chrome.tabs.query({
@@ -52,7 +55,7 @@ export default function Popup() {
     })
   }
   const getLocation = () => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       chrome.tabs.query({
         active: true,
         currentWindow: true
@@ -61,7 +64,9 @@ export default function Popup() {
           type: 'getLocation',
         }).then((res:any) => {
           resolve(res)
-        }).catch(() => {})
+        }).catch(() => {
+          reject()
+        })
       })
     })
   }
@@ -80,6 +85,8 @@ export default function Popup() {
     getLocation().then((res: any) => {
       locationRef.current = res
       updateData()
+    }).catch(() => {
+      setNotSupport(true)
     })
   }, [])
   return (
@@ -98,6 +105,14 @@ export default function Popup() {
               要记住阅读进度吗？
             </div>
           )}
+        </>
+      )}
+      {notSupport && (
+        <>
+          <img style={{ width: 50 }} src={errorIcon}></img>
+          <div style={{ marginTop: 6 }}>
+            这个页面不行～
+          </div>
         </>
       )}
     </div>
