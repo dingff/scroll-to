@@ -1,4 +1,5 @@
-const SCROLL_TO_MAP = 'SCROLL_TO_MAP'
+import { SCROLL_TO_MAP } from '../common/constants'
+
 const debounce = (fn, delay = 500) => {
   let timer
   return (...args) => {

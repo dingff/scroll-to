@@ -1,5 +1,5 @@
+import { SCROLL_TO_MAP } from '../common/constants'
 class ContentScript {
-  SCROLL_TO_MAP = 'SCROLL_TO_MAP'
   currMap = {}
   constructor() {
     window.onload = () => {
@@ -33,9 +33,9 @@ class ContentScript {
   }
   updateStorage(next) {
     return new Promise((resolve) => {
-      chrome.storage.sync.set({ [this.SCROLL_TO_MAP]: next }).then(() => {
+      chrome.storage.sync.set({ [SCROLL_TO_MAP]: next }).then(() => {
         resolve()
-        // console.log(`${this.SCROLL_TO_MAP}`, this.currMap)
+        // console.log(`${SCROLL_TO_MAP}`, this.currMap)
       })
     })
   }
@@ -88,8 +88,8 @@ class ContentScript {
   }
   getStorage() {
     return new Promise((resolve) => {
-      chrome.storage.sync.get([this.SCROLL_TO_MAP]).then((res) => {
-        resolve(res[this.SCROLL_TO_MAP] || {})
+      chrome.storage.sync.get([SCROLL_TO_MAP]).then((res) => {
+        resolve(res[SCROLL_TO_MAP] || {})
       })
     })
   }

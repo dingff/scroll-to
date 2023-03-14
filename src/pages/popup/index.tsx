@@ -1,5 +1,6 @@
 import { Switch } from 'antd'
 import { useEffect, useRef, useState } from 'react'
+import { SCROLL_TO_MAP } from '@/common/constants'
 import coolIcon from '@/assets/imgs/popup/cool.png'
 import laughIcon from '@/assets/imgs/popup/laugh.png'
 import errorIcon from '@/assets/imgs/popup/error.png'
@@ -8,7 +9,6 @@ import styles from './index.less'
 declare var chrome: any
 
 export default function Popup() {
-  const SCROLL_TO_MAP = 'SCROLL_TO_MAP'
   const locationRef = useRef<any>(null) // window.location
   const [checked, setChecked] = useState<boolean>()
   const [notSupport, setNotSupport] = useState<boolean>(false)
