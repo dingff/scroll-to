@@ -16,9 +16,11 @@ const getStorage = () => {
   })
 }
 const getTabUrl = (tabId) => {
-  return new Promise((resolve) => {
-    chrome.tabs.get(tabId, (tab) => {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.get(tabId).then((tab) => {
       resolve(tab.url)
+    }).catch(() => {
+      reject()
     })
   })
 }
@@ -26,7 +28,7 @@ const updateLogoByTabId = (tabId) => {
   getStorage().then((dataMap) => {
     getTabUrl(tabId).then((url) => {
       chrome.action.setIcon({ path: dataMap[url] ? './logo/logo.png': './logo/logo_gray.png' })
-    })
+    }).catch(() => {})
   })
 }
 chrome.tabs.onActivated.addListener((e) => {
