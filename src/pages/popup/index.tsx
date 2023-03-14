@@ -1,15 +1,16 @@
 import { Switch } from 'antd'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useUpdateEffect } from 'ahooks'
 import { SCROLL_TO_MAP } from '@/common/constants'
 import coolIcon from '@/assets/imgs/popup/cool.png'
 import laughIcon from '@/assets/imgs/popup/laugh.png'
 import errorIcon from '@/assets/imgs/popup/error.png'
 import styles from './index.less'
 
-declare var chrome: any
+declare let chrome: any
 
 export default function Popup() {
-  const locationRef = useRef<any>(null) // window.location
+  const [location, setLocation] = useState<any>(null) // window.location
   const [checked, setChecked] = useState<boolean>()
   const [notSupport, setNotSupport] = useState<boolean>(false)
 
@@ -17,7 +18,7 @@ export default function Popup() {
     return new Promise((resolve) => {
       chrome.tabs.query({
         active: true,
-        currentWindow: true
+        currentWindow: true,
       }, (tabs: any) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'add',
@@ -31,7 +32,7 @@ export default function Popup() {
     return new Promise((resolve) => {
       chrome.tabs.query({
         active: true,
-        currentWindow: true
+        currentWindow: true,
       }, (tabs: any) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'delete',
@@ -51,14 +52,14 @@ export default function Popup() {
   }
   const updateData = () => {
     getStorage().then((res: any) => {
-      setChecked(!!res[locationRef.current.href])
+      setChecked(!!res[location.href])
     })
   }
   const getLocation = () => {
     return new Promise((resolve, reject) => {
       chrome.tabs.query({
         active: true,
-        currentWindow: true
+        currentWindow: true,
       }, (tabs: any) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'getLocation',
@@ -81,10 +82,12 @@ export default function Popup() {
       })
     }
   }
+  useUpdateEffect(() => {
+    updateData()
+  }, [location])
   useEffect(() => {
     getLocation().then((res: any) => {
-      locationRef.current = res
-      updateData()
+      setLocation(res)
     }).catch(() => {
       setNotSupport(true)
     })
@@ -93,15 +96,16 @@ export default function Popup() {
     <div className={styles.container}>
       {checked !== undefined && (
         <>
+          <div className={styles.url}>{location.origin}{location.pathname}</div>
           <Switch className={styles.switch} checked={checked} onChange={handleSwitchChange}></Switch>
           {checked ? (
             <div className={styles.info}>
-              <img src={laughIcon}></img>
+              <img src={laughIcon} alt=""></img>
               报告，已经记在小本本上了～
             </div>
           ) : (
             <div className={styles.info}>
-              <img src={coolIcon}></img>
+              <img src={coolIcon} alt=""></img>
               要记住阅读进度吗？
             </div>
           )}
@@ -109,7 +113,7 @@ export default function Popup() {
       )}
       {notSupport && (
         <>
-          <img style={{ width: 50 }} src={errorIcon}></img>
+          <img style={{ width: 50 }} src={errorIcon} alt=""></img>
           <div style={{ marginTop: 6 }}>
             这个页面不行～
           </div>
