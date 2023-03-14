@@ -28,7 +28,7 @@ const getTabUrl = (tabId) => {
 const updateLogoByTabId = (tabId) => {
   getStorage().then((dataMap) => {
     getTabUrl(tabId).then((url) => {
-      chrome.action.setIcon({ path: dataMap[url] ? './logo/logo.png': './logo/logo_gray.png' })
+      chrome.action.setIcon({ path: dataMap[url] ? './logo/logo.png' : './logo/logo_gray.png' })
     }).catch(() => {})
   })
 }
@@ -44,7 +44,7 @@ chrome.tabs.onUpdated.addListener(debounce((tabId) => {
 const updateLogoForCurrTab = () => {
   chrome.tabs.query({
     active: true,
-    currentWindow: true
+    currentWindow: true,
   }, (tabs) => {
     const tabId = tabs[0].id
     updateLogoByTabId(tabId)

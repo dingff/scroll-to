@@ -1,7 +1,8 @@
 import { SCROLL_TO_MAP } from '../common/constants'
+
 class ContentScript {
-  currMap = {}
   constructor() {
+    this.currMap = {}
     window.onload = () => {
       this.getStorage().then((v) => {
         this.currMap = v
@@ -83,7 +84,7 @@ class ContentScript {
   scrollTo(top) {
     window.scrollTo({
       top,
-      behavior: "smooth"
+      behavior: 'smooth',
     })
   }
   getStorage() {
@@ -94,4 +95,5 @@ class ContentScript {
     })
   }
 }
+// eslint-disable-next-line no-new
 new ContentScript()
