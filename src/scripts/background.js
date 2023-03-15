@@ -1,5 +1,5 @@
 import { SCROLL_TO_MAP } from '../common/constants'
-import { debounce, getStorage } from '../common/utils'
+import { debounce, getExistKey, getStorage } from '../common/utils'
 
 const getTabUrl = (tabId) => {
   return new Promise((resolve, reject) => {
@@ -13,7 +13,8 @@ const getTabUrl = (tabId) => {
 const updateLogoByTabId = (tabId) => {
   getStorage(SCROLL_TO_MAP).then((dataMap = {}) => {
     getTabUrl(tabId).then((url) => {
-      chrome.action.setIcon({ path: dataMap[url] ? './logo/logo.png' : './logo/logo_gray.png' })
+      const existKey = getExistKey(dataMap, url)
+      chrome.action.setIcon({ path: dataMap[existKey] ? './logo/logo.png' : './logo/logo_gray.png' })
     }).catch(() => {})
   })
 }
