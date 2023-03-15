@@ -2,15 +2,15 @@ import { SCROLL_TO_MAP } from '../common/constants'
 import { debounce, getExistKey, getStorage } from '../common/utils'
 
 class ContentScript {
-  existKey = ''
   constructor() {
     this.initMessageListener()
   }
   initScrollFn() {
     window.onscroll = debounce(() => {
       getStorage(SCROLL_TO_MAP).then((currMap = {}) => {
-        if (!this.existKey || this.existKey !== getExistKey(currMap, window.location.href)) return
-        currMap[this.existKey].top = window.scrollY
+        const existKey = getExistKey(currMap, window.location.href)
+        if (!existKey) return
+        currMap[existKey].top = window.scrollY
         this.updateStorage(currMap)
       })
     }, 1000)
@@ -59,21 +59,21 @@ class ContentScript {
       if (message.type === 'urlChange') {
         console.log('urlChange')
         getStorage(SCROLL_TO_MAP).then((currMap = {}) => {
-          this.existKey = getExistKey(currMap, window.location.href)
-          if (this.existKey) {
-            const current = currMap[this.existKey]
-            if (this.existKey === window.location.href && current.url === window.location.href) {
+          const existKey = getExistKey(currMap, window.location.href)
+          if (existKey) {
+            const current = currMap[existKey]
+            if (existKey === window.location.href && current.url === window.location.href) {
               window.scrollTo({
                 top: current.top,
                 behavior: 'smooth',
               })
               this.initScrollFn()
             }
-            if (this.existKey === window.location.href && current.url !== window.location.href) {
+            if (existKey === window.location.href && current.url !== window.location.href) {
               window.location.replace(current.url)
             }
-            if (this.existKey !== window.location.href && current.url !== window.location.href) {
-              currMap[this.existKey].url = window.location.href
+            if (existKey !== window.location.href && current.url !== window.location.href) {
+              currMap[existKey].url = window.location.href
               this.updateStorage(currMap)
             }
           } else {
