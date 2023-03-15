@@ -25,7 +25,7 @@ chrome.tabs.onUpdated.addListener(debounce((tabId) => {
   chrome.tabs.sendMessage(tabId, {
     type: 'urlChange',
   }).catch(() => {})
-}, 800))
+}, 600))
 const updateLogoForCurrTab = () => {
   chrome.tabs.query({
     active: true,

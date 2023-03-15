@@ -60,8 +60,21 @@ class ContentScript {
         console.log('urlChange')
         this.existKey = getExistKey(this.currMap, window.location.href)
         if (this.existKey) {
-          this.scrollTo()
-          this.initScrollFn()
+          const current = this.currMap[this.existKey]
+          if (this.existKey === window.location.href && current.url === window.location.href) {
+            window.scrollTo({
+              top: current.top,
+              behavior: 'smooth',
+            })
+            this.initScrollFn()
+          }
+          if (this.existKey === window.location.href && current.url !== window.location.href) {
+            window.location.replace(current.url)
+          }
+          if (this.existKey !== window.location.href && current.url !== window.location.href) {
+            this.currMap[this.existKey].url = window.location.href
+            this.updateStorage(this.currMap)
+          }
         } else {
           window.onscroll = null
         }
@@ -69,17 +82,6 @@ class ContentScript {
       }
       return true
     })
-  }
-  scrollTo() {
-    const current = this.currMap[this.existKey]
-    if (current.url !== window.location.href) {
-      window.location.replace(current.url)
-    } else {
-      window.scrollTo({
-        top: current.top,
-        behavior: 'smooth',
-      })
-    }
   }
 }
 // eslint-disable-next-line no-new
