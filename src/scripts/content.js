@@ -2,21 +2,17 @@ import { SCROLL_TO_MAP } from '../common/constants'
 import { debounce, getExistKey, getStorage } from '../common/utils'
 
 class ContentScript {
-  currMap = {}
   existKey = ''
   constructor() {
-    window.onload = () => {
-      getStorage(SCROLL_TO_MAP).then((v = {}) => {
-        this.currMap = v
-      })
-    }
     this.initMessageListener()
   }
   initScrollFn() {
     window.onscroll = debounce(() => {
-      if (!this.existKey || this.existKey !== getExistKey(this.currMap, window.location.href)) return
-      this.currMap[this.existKey].top = window.scrollY
-      this.updateStorage(this.currMap)
+      getStorage(SCROLL_TO_MAP).then((currMap = {}) => {
+        if (!this.existKey || this.existKey !== getExistKey(currMap, window.location.href)) return
+        currMap[this.existKey].top = window.scrollY
+        this.updateStorage(currMap)
+      })
     }, 1000)
   }
   updateStorage(next) {
@@ -35,22 +31,26 @@ class ContentScript {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.type === 'add') {
         const { validUrl } = message.data
-        this.currMap[validUrl] = {
-          url: window.location.href,
-          top: window.scrollY,
-        }
-        this.initScrollFn()
-        this.updateStorage(this.currMap).then(() => {
-          this.updateLogo()
-          sendResponse(true)
+        getStorage(SCROLL_TO_MAP).then((currMap = {}) => {
+          currMap[validUrl] = {
+            url: window.location.href,
+            top: window.scrollY,
+          }
+          this.initScrollFn()
+          this.updateStorage(currMap).then(() => {
+            this.updateLogo()
+            sendResponse(true)
+          })
         })
       }
       if (message.type === 'delete') {
-        delete this.currMap[message.data.validUrl]
-        window.onscroll = null
-        this.updateStorage(this.currMap).then(() => {
-          this.updateLogo()
-          sendResponse(true)
+        getStorage(SCROLL_TO_MAP).then((currMap = {}) => {
+          delete currMap[message.data.validUrl]
+          window.onscroll = null
+          this.updateStorage(currMap).then(() => {
+            this.updateLogo()
+            sendResponse(true)
+          })
         })
       }
       if (message.type === 'getLocation') {
@@ -58,27 +58,29 @@ class ContentScript {
       }
       if (message.type === 'urlChange') {
         console.log('urlChange')
-        this.existKey = getExistKey(this.currMap, window.location.href)
-        if (this.existKey) {
-          const current = this.currMap[this.existKey]
-          if (this.existKey === window.location.href && current.url === window.location.href) {
-            window.scrollTo({
-              top: current.top,
-              behavior: 'smooth',
-            })
-            this.initScrollFn()
+        getStorage(SCROLL_TO_MAP).then((currMap = {}) => {
+          this.existKey = getExistKey(currMap, window.location.href)
+          if (this.existKey) {
+            const current = currMap[this.existKey]
+            if (this.existKey === window.location.href && current.url === window.location.href) {
+              window.scrollTo({
+                top: current.top,
+                behavior: 'smooth',
+              })
+              this.initScrollFn()
+            }
+            if (this.existKey === window.location.href && current.url !== window.location.href) {
+              window.location.replace(current.url)
+            }
+            if (this.existKey !== window.location.href && current.url !== window.location.href) {
+              currMap[this.existKey].url = window.location.href
+              this.updateStorage(currMap)
+            }
+          } else {
+            window.onscroll = null
           }
-          if (this.existKey === window.location.href && current.url !== window.location.href) {
-            window.location.replace(current.url)
-          }
-          if (this.existKey !== window.location.href && current.url !== window.location.href) {
-            this.currMap[this.existKey].url = window.location.href
-            this.updateStorage(this.currMap)
-          }
-        } else {
-          window.onscroll = null
-        }
-        sendResponse(true)
+          sendResponse(true)
+        })
       }
       return true
     })
