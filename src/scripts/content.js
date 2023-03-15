@@ -13,7 +13,7 @@ class ContentScript {
         currMap[existKey].top = window.scrollY
         this.updateStorage(currMap)
       })
-    }, 1000)
+    }, 600)
   }
   updateStorage(next) {
     return new Promise((resolve) => {
