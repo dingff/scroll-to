@@ -5,6 +5,7 @@ import { SCROLL_TO_MAP } from '@/common/constants'
 import coolIcon from '@/assets/imgs/popup/cool.png'
 import laughIcon from '@/assets/imgs/popup/laugh.png'
 import errorIcon from '@/assets/imgs/popup/error.png'
+import { getExistKey, getStorage } from '@/common/utils'
 import styles from './index.less'
 
 declare let chrome: any
@@ -13,7 +14,7 @@ export default function Popup() {
   const [location, setLocation] = useState<any>(null) // window.location
   const [checked, setChecked] = useState<boolean>()
   const [notSupport, setNotSupport] = useState<boolean>(false)
-
+  const [validUrl, setValidUrl] = useState('')
   const callContentAdd = () => {
     return new Promise((resolve) => {
       chrome.tabs.query({
@@ -22,6 +23,9 @@ export default function Popup() {
       }, (tabs: any) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'add',
+          data: {
+            validUrl,
+          },
         }).then((res: boolean) => {
           resolve(res)
         }).catch(() => {})
@@ -36,23 +40,20 @@ export default function Popup() {
       }, (tabs: any) => {
         chrome.tabs.sendMessage(tabs[0].id, {
           type: 'delete',
+          data: {
+            validUrl,
+          },
         }).then((res: boolean) => {
           resolve(res)
         }).catch(() => {})
       })
     })
   }
-  // 获取当前存储的数据
-  const getStorage = () => {
-    return new Promise((resolve) => {
-      chrome.storage.sync.get([SCROLL_TO_MAP]).then((res: any) => {
-        resolve(res[SCROLL_TO_MAP] || {})
-      })
-    })
-  }
   const updateData = () => {
-    getStorage().then((res: any) => {
-      setChecked(!!res[location.href])
+    getStorage(SCROLL_TO_MAP).then((res: any = {}) => {
+      const existKey = getExistKey(res, location.href)
+      setValidUrl(existKey || `${location.origin}${location.pathname}`)
+      setChecked(!!existKey)
     })
   }
   const getLocation = () => {
@@ -96,7 +97,7 @@ export default function Popup() {
     <div className={styles.container}>
       {checked !== undefined && (
         <>
-          <div className={styles.url}>{location.origin}{location.pathname}</div>
+          <div className={styles.url}>{validUrl}</div>
           <Switch className={styles.switch} checked={checked} onChange={handleSwitchChange}></Switch>
           {checked ? (
             <div className={styles.info}>

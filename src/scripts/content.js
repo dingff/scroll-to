@@ -1,42 +1,28 @@
 import { SCROLL_TO_MAP } from '../common/constants'
+import { debounce, getExistKey, getStorage } from '../common/utils'
 
 class ContentScript {
+  currMap = {}
+  existKey = ''
   constructor() {
-    this.currMap = {}
     window.onload = () => {
-      this.getStorage().then((v) => {
+      getStorage(SCROLL_TO_MAP).then((v = {}) => {
         this.currMap = v
-        if (this.currMap[window.location.href]) {
-          this.scrollTo(this.currMap[window.location.href].top)
-          this.initScrollFn()
-        }
       })
     }
     this.initMessageListener()
   }
   initScrollFn() {
-    if (this.currMap[window.location.href]) {
-      window.onscroll = this.debounce(() => {
-        if (!this.currMap[window.location.href]) return
-        this.currMap[window.location.href].top = window.scrollY
-        this.updateStorage(this.currMap)
-      })
-    }
-  }
-  debounce(fn, delay = 200) {
-    let timer
-    return (...args) => {
-      clearTimeout(timer)
-      timer = setTimeout(() => {
-        fn(...args)
-      }, delay)
-    }
+    window.onscroll = debounce(() => {
+      if (!this.existKey || this.existKey !== getExistKey(this.currMap, window.location.href)) return
+      this.currMap[this.existKey].top = window.scrollY
+      this.updateStorage(this.currMap)
+    }, 1000)
   }
   updateStorage(next) {
     return new Promise((resolve) => {
       chrome.storage.sync.set({ [SCROLL_TO_MAP]: next }).then(() => {
         resolve()
-        // console.log(`${SCROLL_TO_MAP}`, this.currMap)
       })
     })
   }
@@ -48,7 +34,8 @@ class ContentScript {
   initMessageListener() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       if (message.type === 'add') {
-        this.currMap[window.location.href] = {
+        const { validUrl } = message.data
+        this.currMap[validUrl] = {
           url: window.location.href,
           top: window.scrollY,
         }
@@ -59,7 +46,7 @@ class ContentScript {
         })
       }
       if (message.type === 'delete') {
-        delete this.currMap[window.location.href]
+        delete this.currMap[message.data.validUrl]
         window.onscroll = null
         this.updateStorage(this.currMap).then(() => {
           this.updateLogo()
@@ -70,8 +57,10 @@ class ContentScript {
         sendResponse(window.location)
       }
       if (message.type === 'urlChange') {
-        if (this.currMap[window.location.href]) {
-          this.scrollTo(this.currMap[window.location.href].top)
+        console.log('urlChange')
+        this.existKey = getExistKey(this.currMap, window.location.href)
+        if (this.existKey) {
+          this.scrollTo()
           this.initScrollFn()
         } else {
           window.onscroll = null
@@ -81,18 +70,16 @@ class ContentScript {
       return true
     })
   }
-  scrollTo(top) {
-    window.scrollTo({
-      top,
-      behavior: 'smooth',
-    })
-  }
-  getStorage() {
-    return new Promise((resolve) => {
-      chrome.storage.sync.get([SCROLL_TO_MAP]).then((res) => {
-        resolve(res[SCROLL_TO_MAP] || {})
+  scrollTo() {
+    const current = this.currMap[this.existKey]
+    if (current.url !== window.location.href) {
+      window.location.replace(current.url)
+    } else {
+      window.scrollTo({
+        top: current.top,
+        behavior: 'smooth',
       })
-    })
+    }
   }
 }
 // eslint-disable-next-line no-new

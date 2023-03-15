@@ -1,21 +1,6 @@
 import { SCROLL_TO_MAP } from '../common/constants'
+import { debounce, getStorage } from '../common/utils'
 
-const debounce = (fn, delay = 500) => {
-  let timer
-  return (...args) => {
-    clearTimeout(timer)
-    timer = setTimeout(() => {
-      fn(...args)
-    }, delay)
-  }
-}
-const getStorage = () => {
-  return new Promise((resolve) => {
-    chrome.storage.sync.get([SCROLL_TO_MAP]).then((res) => {
-      resolve(res[SCROLL_TO_MAP] || {})
-    })
-  })
-}
 const getTabUrl = (tabId) => {
   return new Promise((resolve, reject) => {
     chrome.tabs.get(tabId).then((tab) => {
@@ -26,7 +11,7 @@ const getTabUrl = (tabId) => {
   })
 }
 const updateLogoByTabId = (tabId) => {
-  getStorage().then((dataMap) => {
+  getStorage(SCROLL_TO_MAP).then((dataMap = {}) => {
     getTabUrl(tabId).then((url) => {
       chrome.action.setIcon({ path: dataMap[url] ? './logo/logo.png' : './logo/logo_gray.png' })
     }).catch(() => {})
@@ -40,7 +25,7 @@ chrome.tabs.onUpdated.addListener(debounce((tabId) => {
   chrome.tabs.sendMessage(tabId, {
     type: 'urlChange',
   }).catch(() => {})
-}))
+}, 800))
 const updateLogoForCurrTab = () => {
   chrome.tabs.query({
     active: true,
