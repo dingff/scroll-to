@@ -60,20 +60,25 @@ class ContentScript {
         getStorage(SCROLL_TO_MAP).then((currMap = {}) => {
           const existKey = getExistKey(currMap, window.location.href)
           if (existKey) {
-            const current = currMap[existKey]
-            if (existKey === window.location.href && current.url === window.location.href) {
-              window.scrollTo({
-                top: current.top,
-                behavior: 'smooth',
-              })
-              this.initScrollFn()
-            }
-            if (existKey === window.location.href && current.url !== window.location.href) {
-              window.location.replace(current.url)
-            }
-            if (existKey !== window.location.href && current.url !== window.location.href) {
-              currMap[existKey].url = window.location.href
-              this.updateStorage(currMap)
+            const storageData = currMap[existKey]
+            const currUrl = window.location.href
+            switch (true) {
+              case existKey === currUrl && storageData.url === currUrl:
+                window.scrollTo({
+                  top: storageData.top,
+                  behavior: 'smooth',
+                })
+                this.initScrollFn()
+                break
+              case existKey === currUrl && storageData.url !== currUrl:
+                window.location.replace(storageData.url)
+                break
+              case existKey !== currUrl && storageData.url !== currUrl:
+                currMap[existKey].url = currUrl
+                this.updateStorage(currMap)
+                break
+              default:
+                break
             }
           } else {
             window.onscroll = null
