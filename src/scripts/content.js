@@ -57,7 +57,6 @@ class ContentScript {
         sendResponse(window.location)
       }
       if (message.type === 'urlChange') {
-        console.log('urlChange')
         getStorage(SCROLL_TO_MAP).then((currMap = {}) => {
           const existKey = getExistKey(currMap, window.location.href)
           if (existKey) {
